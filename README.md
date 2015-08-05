@@ -1,4 +1,4 @@
-# gorocksdb, a Go wrapper for RocksDB
+# RDB, a Go wrapper for RocksDB
 
 [![Build Status](https://travis-ci.org/tecbot/gorocksdb.png)](https://travis-ci.org/tecbot/gorocksdb) [![GoDoc](https://godoc.org/github.com/tecbot/gorocksdb?status.png)](http://godoc.org/github.com/tecbot/gorocksdb)
 
