@@ -1,4 +1,4 @@
-package gorocksdb
+package rdb
 
 // Compression options for different compression algorithms like Zlib.
 type CompressionOptions struct {

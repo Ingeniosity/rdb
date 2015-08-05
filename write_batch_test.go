@@ -1,4 +1,4 @@
-package gorocksdb
+package rdb
 
 import (
 	. "github.com/smartystreets/goconvey/convey"
