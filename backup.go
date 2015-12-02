@@ -90,7 +90,7 @@ func OpenBackupEngine(opts *Options, path string) (*BackupEngine, error) {
 
 	be := C.rocksdb_backup_engine_open(opts.c, cpath, &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 		return nil, errors.New(C.GoString(cErr))
 	}
 
@@ -112,7 +112,7 @@ func (self *BackupEngine) CreateNewBackup(db *DB) error {
 
 	C.rocksdb_backup_engine_create_new_backup(self.c, db.c, &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 		return errors.New(C.GoString(cErr))
 	}
 
@@ -142,7 +142,7 @@ func (self *BackupEngine) RestoreDBFromLatestBackup(db_dir string, wal_dir strin
 	C.rocksdb_backup_engine_restore_db_from_latest_backup(self.c,
 		c_db_dir, c_wal_dir, opts.c, &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 		return errors.New(C.GoString(cErr))
 	}
 

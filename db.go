@@ -39,7 +39,7 @@ func OpenDb(opts *Options, name string) (*DB, error) {
 	defer C.free(unsafe.Pointer(cname))
 	db := C.rocksdb_open(opts.c, cname, &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 
 		return nil, errors.New(C.GoString(cErr))
 	}
@@ -58,7 +58,7 @@ func OpenDbForReadOnly(opts *Options, name string, errorIfLogFileExist bool) (*D
 	defer C.free(unsafe.Pointer(cname))
 	db := C.rocksdb_open_for_read_only(opts.c, cname, boolToChar(errorIfLogFileExist), &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 
 		return nil, errors.New(C.GoString(cErr))
 	}
@@ -113,7 +113,7 @@ func OpenDbColumnFamilies(
 		&cErr,
 	)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 		return nil, nil, errors.New(C.GoString(cErr))
 	}
 
@@ -175,7 +175,7 @@ func OpenDbForReadOnlyColumnFamilies(
 		&cErr,
 	)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 		return nil, nil, errors.New(C.GoString(cErr))
 	}
 
@@ -199,7 +199,7 @@ func ListColumnFamilies(opts *Options, name string) ([]string, error) {
 	var cErr *C.char
 	cNames := C.rocksdb_list_column_families(opts.c, cName, &cLen, &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 		return nil, errors.New(C.GoString(cErr))
 	}
 	namesLen := int(cLen)
@@ -230,7 +230,7 @@ func (self *DB) Get(opts *ReadOptions, key []byte) (*Slice, error) {
 	var cValLen C.size_t
 	cValue := C.rocksdb_get(self.c, opts.c, cKey, C.size_t(len(key)), &cValLen, &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 
 		return nil, errors.New(C.GoString(cErr))
 	}
@@ -244,7 +244,7 @@ func (self *DB) GetBytes(opts *ReadOptions, key []byte) ([]byte, error) {
 	var cValLen C.size_t
 	cValue := C.rocksdb_get(self.c, opts.c, cKey, C.size_t(len(key)), &cValLen, &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 		return nil, errors.New(C.GoString(cErr))
 	}
 
@@ -264,7 +264,7 @@ func (self *DB) GetCF(opts *ReadOptions, cf *ColumnFamilyHandle, key []byte) (*S
 	var cValLen C.size_t
 	cValue := C.rocksdb_get_cf(self.c, opts.c, cf.c, cKey, C.size_t(len(key)), &cValLen, &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 
 		return nil, errors.New(C.GoString(cErr))
 	}
@@ -280,7 +280,7 @@ func (self *DB) Put(opts *WriteOptions, key, value []byte) error {
 	var cErr *C.char
 	C.rocksdb_put(self.c, opts.c, cKey, C.size_t(len(key)), cValue, C.size_t(len(value)), &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 
 		return errors.New(C.GoString(cErr))
 	}
@@ -296,7 +296,7 @@ func (self *DB) PutCF(opts *WriteOptions, cf *ColumnFamilyHandle, key, value []b
 	var cErr *C.char
 	C.rocksdb_put_cf(self.c, opts.c, cf.c, cKey, C.size_t(len(key)), cValue, C.size_t(len(value)), &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 		return errors.New(C.GoString(cErr))
 	}
 	return nil
@@ -309,7 +309,7 @@ func (self *DB) Delete(opts *WriteOptions, key []byte) error {
 	var cErr *C.char
 	C.rocksdb_delete(self.c, opts.c, cKey, C.size_t(len(key)), &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 
 		return errors.New(C.GoString(cErr))
 	}
@@ -323,7 +323,7 @@ func (self *DB) DeleteCF(opts *WriteOptions, cf *ColumnFamilyHandle, key []byte)
 	var cErr *C.char
 	C.rocksdb_delete_cf(self.c, opts.c, cf.c, cKey, C.size_t(len(key)), &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 		return errors.New(C.GoString(cErr))
 	}
 	return nil
@@ -337,7 +337,7 @@ func (self *DB) Merge(opts *WriteOptions, key []byte, value []byte) error {
 	var cErr *C.char
 	C.rocksdb_merge(self.c, opts.c, cKey, C.size_t(len(key)), cValue, C.size_t(len(value)), &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 
 		return errors.New(C.GoString(cErr))
 	}
@@ -354,7 +354,7 @@ func (self *DB) MergeCF(opts *WriteOptions, cf *ColumnFamilyHandle, key []byte, 
 	var cErr *C.char
 	C.rocksdb_merge_cf(self.c, opts.c, cf.c, cKey, C.size_t(len(key)), cValue, C.size_t(len(value)), &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 		return errors.New(C.GoString(cErr))
 	}
 	return nil
@@ -365,7 +365,7 @@ func (self *DB) Write(opts *WriteOptions, batch *WriteBatch) error {
 	var cErr *C.char
 	C.rocksdb_write(self.c, opts.c, batch.c, &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 
 		return errors.New(C.GoString(cErr))
 	}
@@ -418,7 +418,7 @@ func (self *DB) CreateColumnFamily(opts *Options, name string) (*ColumnFamilyHan
 	var cErr *C.char
 	cHandle := C.rocksdb_create_column_family(self.c, opts.c, cName, &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 		return nil, errors.New(C.GoString(cErr))
 	}
 	return NewNativeColumnFamilyHandle(cHandle), nil
@@ -428,7 +428,7 @@ func (self *DB) DropColumnFamily(c *ColumnFamilyHandle) error {
 	var cErr *C.char
 	C.rocksdb_drop_column_family(self.c, c.c, &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 		return errors.New(C.GoString(cErr))
 	}
 	return nil
@@ -535,7 +535,7 @@ func (self *DB) Flush(opts *FlushOptions) error {
 	var cErr *C.char
 	C.rocksdb_flush(self.c, opts.c, &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 
 		return errors.New(C.GoString(cErr))
 	}
@@ -548,7 +548,7 @@ func (self *DB) DisableFileDeletions() error {
 	var cErr *C.char
 	C.rocksdb_disable_file_deletions(self.c, &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 
 		return errors.New(C.GoString(cErr))
 	}
@@ -561,7 +561,7 @@ func (self *DB) EnableFileDeletions(force bool) error {
 	var cErr *C.char
 	C.rocksdb_enable_file_deletions(self.c, boolToChar(force), &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 
 		return errors.New(C.GoString(cErr))
 	}
@@ -591,7 +591,7 @@ func DestroyDb(name string, opts *Options) error {
 	defer C.free(unsafe.Pointer(cname))
 	C.rocksdb_destroy_db(opts.c, cname, &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 
 		return errors.New(C.GoString(cErr))
 	}
@@ -606,7 +606,7 @@ func RepairDb(name string, opts *Options) error {
 	defer C.free(unsafe.Pointer(cname))
 	C.rocksdb_repair_db(opts.c, cname, &cErr)
 	if cErr != nil {
-		defer C.free(unsafe.Pointer(cErr))
+		defer C.rocksdb_free(cErr)
 
 		return errors.New(C.GoString(cErr))
 	}
