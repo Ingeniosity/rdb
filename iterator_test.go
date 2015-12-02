@@ -1,9 +1,10 @@
 package rdb
 
 import (
-	. "github.com/smartystreets/goconvey/convey"
 	"os"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestIterator(t *testing.T) {
