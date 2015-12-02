@@ -20,12 +20,6 @@ const (
 	Bz2Compression    = CompressionType(C.rocksdb_bz2_compression)
 	Lz4Compression    = CompressionType(C.rocksdb_lz4_compression)
 	Lz4hcCompression  = CompressionType(C.rocksdb_lz4hc_compression)
-
-	// NoCompression     = CompressionType(0)
-	// SnappyCompression = CompressionType(1)
-	// ZlibCompression   = CompressionType(2)
-	// BZip2Compression  = CompressionType(3)
-	// LZ4Compression    = CompressionType(4)
 )
 
 type CompactionStyle uint
