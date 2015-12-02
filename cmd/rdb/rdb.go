@@ -15,6 +15,7 @@ func init() {
 			Usage: "database location (required)",
 		},
 	}
+	app.Flags = append(app.Flags, defaultFlags...)
 }
 
 func main() {
