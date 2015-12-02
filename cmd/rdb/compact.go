@@ -16,8 +16,8 @@ func init() {
 		Action: createDb,
 
 		Flags: []cli.Flag{
-			compressionTypeFlag,
-			numLevelsFlag,
+			compression_type,
+			num_levels,
 		},
 	})
 
@@ -31,10 +31,10 @@ func compactDb(c *cli.Context) {
 	}
 
 	options := rdb.NewDefaultOptions()
-	// options.SetNumLevels(c.Int(numLevelsFlag.Name))
-	// options.SetCompression(rdb.Lz4Compression)
-	// options.SetDisableAutoCompactions(true)
-	// options.SetTargetFileSizeBase(5 * GB)
+	options.SetNumLevels(c.Int(num_levels.Name))
+	options.SetCompression(rdb.Lz4Compression)
+	options.SetDisableAutoCompactions(true)
+	options.SetTargetFileSizeBase(5 * GB)
 	db, err := rdb.OpenDb(options, dbName)
 	if err != nil {
 		log.Fatal(err)

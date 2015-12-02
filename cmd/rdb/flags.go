@@ -9,30 +9,30 @@ const (
 )
 
 var (
-	compressionTypeFlag = cli.StringFlag{
+	compression_type = cli.StringFlag{
 		Name:  "compression_type",
 		Value: "snappy",
 		Usage: "(lz4, snappy, zlib)"}
 
-	numLevelsFlag = cli.IntFlag{
+	num_levels = cli.IntFlag{
 		Name:  "num_levels",
 		Value: 7,
 		Usage: "It is safe for num_levels to be bigger than expected number of levels in the database. Some higher levels may be empty, but this will not impact performance in any way. Only change this option if you expect your number of levels will be greater than 7",
 	}
 
-	writeBufferSizeFlag = cli.IntFlag{
+	write_buffer_size = cli.IntFlag{
 		Name:  "write_buffer_size",
 		Value: 4 * MB,
 		Usage: "sets the size of a single memtable. Once memtable exceeds this size, it is marked immutable and a new one is created."}
 
-	maxWriteBufferNumberFlag = cli.IntFlag{
+	max_write_buffer_number = cli.IntFlag{
 		Name:  "max_write_buffer_number",
 		Value: 2,
 		Usage: "sets the maximum number of memtables, both active and immutable. If the active memtable fills up and the total number of memtables is larger than max_write_buffer_number we stall further writes. This may happen if the flush process is slower than the write rate.",
 	}
 
-	minWriteBufferNumberToMerge = cli.IntFlag{
-		Name:  "min_write_buffer_number_to_merge",
+	min_write_buffer_number_to_merge = cli.IntFlag{
+		Name:  "min_write_buffe_number_to_merge",
 		Value: 1,
 		Usage: "is the minimum number of memtables to be merged before flushing to storage. For example, if this option is set to 2, immutable memtables are only flushed when there are two of them - a single immutable memtable will never be flushed. If multiple memtables are merged together, less data may be written to storage since two updates are merged to a single key. However, every Get() must traverse all immutable memtables linearly to check if the key is there. Setting this option too high may hurt read performance.",
 	}
@@ -43,8 +43,15 @@ var (
 		Usage: `Once level 0 reaches this number of files, L0->L1 compaction is triggered. We can therefore estimate level 0 size in stable state as write_buffer_size * min_write_buffer_number_to_merge * level0_file_num_compaction_trigger.`,
 	}
 
-	level0_slowdown_writes_trigger = cli.IntFlag{Value: 20}
-	level0_stop_writes_trigger     = cli.IntFlag{Value: 24}
+	level0_slowdown_writes_trigger = cli.IntFlag{
+		Name:  "level0_slowdown_writes_trigger",
+		Value: 20,
+		Usage: "When the number of level 0 files is greater than the slowdown limit, writes are stalled."}
+
+	level0_stop_writes_trigger = cli.IntFlag{
+		Name:  "level0_stop_writes_trigger",
+		Value: 24,
+		Usage: "When the number is greater than stop limit, writes are fully stopped until compaction is done."}
 
 	target_file_size_base = cli.IntFlag{
 		Name:  "target_file_size_base",
@@ -55,6 +62,7 @@ var (
 	target_file_size_multiplier = cli.IntFlag{
 		Name:  "target_file_size_multiplier",
 		Value: 1,
+		Usage: "Each next level's file size will be target_file_size_multiplier bigger than previous one",
 	}
 
 	max_bytes_for_level_base = cli.IntFlag{

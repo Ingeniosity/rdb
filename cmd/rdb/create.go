@@ -15,12 +15,14 @@ func init() {
 		Action: createDb,
 
 		Flags: []cli.Flag{
-			compressionTypeFlag,
-			writeBufferSizeFlag,
-			maxWriteBufferNumberFlag,
-			numLevelsFlag,
-			minWriteBufferNumberToMerge,
+			compression_type,
+			num_levels,
+			write_buffer_size,
+			max_write_buffer_number,
+			min_write_buffer_number_to_merge,
 			level0_file_num_compaction_trigger,
+			level0_slowdown_writes_trigger,
+			level0_stop_writes_trigger,
 			max_bytes_for_level_base,
 			max_bytes_for_level_multiplier,
 			target_file_size_base,
@@ -40,7 +42,7 @@ func createDb(c *cli.Context) {
 	// dbOptions.SetNumLevels(c.Int(numLevelsFlag.Name))
 	// dbOptions.SetWriteBufferSize(c.Int(writeBufferSizeFlag.Name))
 
-	switch c.String(compressionTypeFlag.Name) {
+	switch c.String(compression_type.Name) {
 	case "snappy":
 		dbOptions.SetCompression(rdb.SnappyCompression)
 	case "zlib":
