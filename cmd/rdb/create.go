@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/codegangsta/cli"
@@ -16,32 +17,17 @@ func init() {
 		Flags: []cli.Flag{
 			compressionTypeFlag,
 			writeBufferSizeFlag,
+			maxWriteBufferNumberFlag,
 			numLevelsFlag,
 			minWriteBufferNumberToMerge,
+			level0_file_num_compaction_trigger,
+			max_bytes_for_level_base,
+			max_bytes_for_level_multiplier,
+			target_file_size_base,
+			target_file_size_multiplier,
 		},
 	})
 }
-
-var (
-	compressionTypeFlag = cli.StringFlag{
-		Name:  "compression_type",
-		Value: "snappy",
-		Usage: "(lz4, snappy, zlib)",
-	}
-	writeBufferSizeFlag = cli.IntFlag{
-		Name:  "write_buffer_size",
-		Value: 5 * 1024,
-		Usage: "buffer size in MB",
-	}
-	numLevelsFlag = cli.IntFlag{
-		Name:  "num_levels",
-		Value: 7,
-	}
-	minWriteBufferNumberToMerge = cli.IntFlag{
-		Name:  "min_write_buffer_number_to_merge",
-		Value: 4,
-	}
-)
 
 func createDb(c *cli.Context) {
 	dbName := c.GlobalString("db")
@@ -51,8 +37,8 @@ func createDb(c *cli.Context) {
 	}
 	dbOptions := rdb.NewDefaultOptions()
 	dbOptions.SetCreateIfMissing(true)
-	dbOptions.SetNumLevels(c.Int(numLevelsFlag.Name))
-	dbOptions.SetWriteBufferSize(c.Int(writeBufferSizeFlag.Name))
+	// dbOptions.SetNumLevels(c.Int(numLevelsFlag.Name))
+	// dbOptions.SetWriteBufferSize(c.Int(writeBufferSizeFlag.Name))
 
 	switch c.String(compressionTypeFlag.Name) {
 	case "snappy":
@@ -70,4 +56,5 @@ func createDb(c *cli.Context) {
 		log.Fatal(err)
 	}
 	defer db.Close()
+	fmt.Println(db.GetProperty("rocksdb.stats"))
 }

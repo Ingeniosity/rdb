@@ -20,5 +20,6 @@ func init() {
 func main() {
 	app.Name = "RodksDB Command Line Tool"
 	app.Usage = "tool to manipulate RocksDB databases"
+	app.Version = "dev"
 	app.Run(os.Args)
 }
