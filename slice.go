@@ -3,6 +3,7 @@ package rdb
 // #include <stdlib.h>
 // #include "rocksdb/c.h"
 import "C"
+import "unsafe"
 
 // Slice is used as a wrapper for non-copy values
 type Slice struct {
@@ -25,7 +26,7 @@ func (self *Slice) Size() int {
 
 func (self *Slice) Free() {
 	if !self.freed {
-		C.rocksdb_free(self.data)
+		C.rocksdb_free(unsafe.Pointer(self.data))
 		self.freed = true
 	}
 }

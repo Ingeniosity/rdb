@@ -103,7 +103,7 @@ func (self *Iterator) Err() error {
 	var cErr *C.char
 	C.rocksdb_iter_get_error(self.c, &cErr)
 	if cErr != nil {
-		defer C.rocksdb_free(cErr)
+		defer C.rocksdb_free(unsafe.Pointer(cErr))
 
 		return errors.New(C.GoString(cErr))
 	}
