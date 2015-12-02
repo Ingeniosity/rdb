@@ -2,6 +2,7 @@ package rdb
 
 // #include <stdlib.h>
 // #include "rocksdb/c.h"
+// #cgo LDFLAGS: -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy
 import "C"
 
 import (
