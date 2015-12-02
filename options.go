@@ -350,6 +350,11 @@ func (self *Options) SetLevel0FileNumCompactionTrigger(value int) {
 	C.rocksdb_options_set_level0_file_num_compaction_trigger(self.c, C.int(value))
 }
 
+func (self *Options) SetLevelCompactionDynamicLevelBytes(value bool) {
+	panic("not available yet")
+	// C.rocksdb_options_set_level_compaction_dynamic_level_bytes(self.c, C.int(btoi(value)))
+}
+
 // Soft limit on number of level-0 files. We start slowing down writes at this
 // point. A value <0 means that no writing slow down will be triggered by
 // number of files in level-0.
