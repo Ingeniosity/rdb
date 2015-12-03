@@ -88,6 +88,11 @@ var (
 		Name:  "source_compaction_factor",
 		Value: 1,
 		Usage: "Maximum number of bytes in all source files to be compacted in a single compaction run. We avoid picking too many files in the source level so that we do not exceed the total source bytes for compaction to exceed (source_compaction_factor * targetFileSizeLevel()) many bytes. Default:1, i.e. pick maxfilesize amount of data as the source of a compaction."}
+
+	disable_auto_compactions = cli.BoolFlag{
+		Name:  "disable_auto_compactions",
+		Usage: "disables auto compactions",
+	}
 )
 
 type flags []cli.Flag
@@ -106,6 +111,7 @@ var defaultFlags = flags{
 	target_file_size_base,
 	target_file_size_multiplier,
 	source_compaction_factor,
+	disable_auto_compactions,
 	bulk,
 }
 
@@ -124,6 +130,7 @@ func (f flags) setOptions(dbOptions *rdb.Options, c *cli.Context) {
 	dbOptions.SetTargetFileSizeBase(uint64(c.GlobalInt(target_file_size_base.Name)))
 	dbOptions.SetTargetFileSizeMultiplier(c.GlobalInt(target_file_size_multiplier.Name))
 	dbOptions.SetSourceCompactionFactor(c.GlobalInt(source_compaction_factor.Name))
+	dbOptions.SetDisableAutoCompactions(c.GlobalBool(disable_auto_compactions.Name))
 
 	if c.GlobalBool(bulk.Name) {
 		dbOptions.PrepareForBulkLoad()
