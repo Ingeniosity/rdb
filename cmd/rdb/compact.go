@@ -5,8 +5,7 @@ import (
 	"log"
 
 	"github.com/codegangsta/cli"
-
-	"ingen.io/rdb"
+	"github.com/unigraph/rdb"
 )
 
 func init() {
@@ -30,12 +29,11 @@ func compactDb(c *cli.Context) {
 		return
 	}
 
-	options := rdb.NewDefaultOptions()
-	options.SetNumLevels(c.Int(num_levels.Name))
-	options.SetCompression(rdb.Lz4Compression)
-	options.SetDisableAutoCompactions(true)
-	options.SetTargetFileSizeBase(5 * GB)
-	db, err := rdb.OpenDb(options, dbName)
+	dbOptions := rdb.NewDefaultOptions()
+	dbOptions.SetCreateIfMissing(true)
+	defaultFlags.setOptions(dbOptions, c)
+
+	db, err := rdb.OpenDb(dbOptions, dbName)
 	if err != nil {
 		log.Fatal(err)
 	}

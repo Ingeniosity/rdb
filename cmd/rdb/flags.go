@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/codegangsta/cli"
-	"ingen.io/rdb"
+	"github.com/unigraph/rdb"
 )
 
 const (

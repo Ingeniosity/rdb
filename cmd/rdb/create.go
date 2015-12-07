@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/codegangsta/cli"
-	"ingen.io/rdb"
+	"github.com/unigraph/rdb"
 )
 
 func init() {
