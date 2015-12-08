@@ -20,7 +20,7 @@ func init() {
 func optionsBulk(c *cli.Context) {
 	dbOptions := rdb.NewDefaultOptions()
 	defaultFlags.setOptions(dbOptions, c)
-	out, err := json.MarshalIndent(DefaultOptions, "", "  ")
+	out, err := json.MarshalIndent(DefaultOptions, "", "\t")
 	if err != nil {
 		log.Fatal(err)
 	}
