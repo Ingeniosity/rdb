@@ -100,6 +100,11 @@ var (
 		Usage: "disables auto compactions",
 	}
 
+	disable_wal = cli.BoolFlag{
+		Name:  "disable_wal",
+		Usage: "disables wal (write ahead log)",
+	}
+
 	config = cli.StringFlag{
 		Name:  "config",
 		Usage: "rdb configuration file with options (alternative to command line parameters)",
@@ -119,9 +124,10 @@ var DefaultOptions = Options{
 	TargetFileSizeMultiplier:       1,
 	MaxBytesForLevelBase:           10 * MB,
 	MaxBytesForLevelMultiplier:     10,
-	Bulk: false,
-	SourceCompactionFactor: 1,
-	DisableAutoCompactions: false,
+	SourceCompactionFactor:         1,
+	DisableAutoCompactions:         false,
+	DisableWriteAheadLog:           false,
+	Bulk:                           false,
 }
 
 type Options struct {
@@ -137,9 +143,10 @@ type Options struct {
 	TargetFileSizeMultiplier       int
 	MaxBytesForLevelBase           int
 	MaxBytesForLevelMultiplier     int
-	Bulk                           bool
 	SourceCompactionFactor         int
 	DisableAutoCompactions         bool
+	DisableWriteAheadLog           bool
+	Bulk                           bool
 }
 
 type flags []cli.Flag
@@ -185,6 +192,9 @@ func (o *Options) Update(c *cli.Context) {
 
 func (o *Options) SetOptions(dbOptions *rdb.Options) {
 	setCompression(dbOptions, o.CompressionType)
+	if o.Bulk {
+		dbOptions.PrepareForBulkLoad()
+	}
 	dbOptions.SetNumLevels(o.NumLevels)
 	dbOptions.SetWriteBufferSize(o.WriteBufferSize)
 	dbOptions.SetMaxWriteBufferNumber(o.MaxWriteBufferNumber)
@@ -200,9 +210,6 @@ func (o *Options) SetOptions(dbOptions *rdb.Options) {
 	dbOptions.SetSourceCompactionFactor(o.SourceCompactionFactor)
 	dbOptions.SetDisableAutoCompactions(o.DisableAutoCompactions)
 
-	if o.Bulk {
-		dbOptions.PrepareForBulkLoad()
-	}
 }
 
 func (f flags) setOptions(dbOptions *rdb.Options, c *cli.Context) {
@@ -218,6 +225,22 @@ func (f flags) setOptions(dbOptions *rdb.Options, c *cli.Context) {
 			log.Fatal(err)
 		}
 	}
+
+	if c.GlobalBool("bulk") {
+		configOptions["NumLevels"] = float64(2)
+		configOptions["Level0FileNumCompactionTrigger"] = float64(1 * GB)
+		configOptions["Level0SlowdownWritesTrigger"] = float64(1 * GB)
+		configOptions["Level0StopWritesTrigger"] = float64(1 * GB)
+		configOptions["TargetFileSizeBase"] = float64(256 * MB)
+		configOptions["DisableAutoCompactions"] = true
+		configOptions["WriteBufferSize"] = float64(512 * MB)
+		configOptions["MinWriteBufferNumberToMerge"] = float64(8)
+		configOptions["MaxWriteBufferNumber"] = float64(16)
+		configOptions["SourceCompactionFactor"] = float64(1 * GB)
+		// DefaultOptions.CompressionType = "lz4"
+		// configOptions["CompressionType"] = "lz4"
+	}
+
 	DefaultOptions.Update(c)
 	val := reflect.ValueOf(&DefaultOptions).Elem()
 	for k, v := range configOptions {

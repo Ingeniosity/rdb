@@ -28,14 +28,18 @@ func init() {
 				Usage: "value size in bytes",
 			},
 			cli.IntFlag{
+				Name:  "batchsize,bs",
+				Value: 100000,
+				Usage: "batch size",
+			},
+			cli.IntFlag{
 				Name:  "pairs",
 				Value: 1 * MB,
 				Usage: "key/value pairs to generate",
 			},
-			cli.IntFlag{
-				Name:  "batchsize,bs",
-				Value: 1 * MB,
-				Usage: "size of the batch",
+			cli.BoolFlag{
+				Name:  "wal",
+				Usage: "disable/enable WAL (write ahead log)",
 			},
 		},
 	})
@@ -72,16 +76,19 @@ func randomData(c *cli.Context) {
 	}
 	defer db.Close()
 
-	value := make([]byte, 800)
+	value := make([]byte, c.Int("valuesize"))
 
 	iterations := c.Int("pairs")
 	woptions := rdb.NewDefaultWriteOptions()
-	woptions.DisableWAL(true)
+
+	woptions.DisableWAL(!c.Bool("wal"))
+	batchSize := c.Int("batchsize")
+
 	batch := rdb.NewWriteBatch()
 	for i := 0; i < iterations; i++ {
 		key := hashOf(fmt.Sprintf("%016d", i))
 		batch.Put(key, value)
-		if batch.Count() > 1000000 {
+		if batch.Count() > batchSize {
 			db.Write(woptions, batch)
 			batch.Clear()
 		}
