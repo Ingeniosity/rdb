@@ -1,6 +1,12 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"os"
+	"reflect"
+
 	"github.com/codegangsta/cli"
 	"github.com/unigraph/rdb"
 )
@@ -95,7 +101,8 @@ var (
 	}
 
 	config = cli.StringFlag{
-		Name: "rdb configuration file with options (alternative to command line parameters)",
+		Name:  "config",
+		Usage: "rdb configuration file with options (alternative to command line parameters)",
 	}
 )
 
@@ -199,26 +206,33 @@ func (o *Options) SetOptions(dbOptions *rdb.Options) {
 }
 
 func (f flags) setOptions(dbOptions *rdb.Options, c *cli.Context) {
-
-	setCompression(dbOptions, c.GlobalString(compression_type.Name))
-	dbOptions.SetNumLevels(c.GlobalInt(num_levels.Name))
-	dbOptions.SetWriteBufferSize(c.GlobalInt(write_buffer_size.Name))
-	dbOptions.SetMaxWriteBufferNumber(c.GlobalInt(max_write_buffer_number.Name))
-	dbOptions.SetMinWriteBufferNumberToMerge(c.GlobalInt(min_write_buffer_number_to_merge.Name))
-	//
-	dbOptions.SetLevel0FileNumCompactionTrigger(c.GlobalInt(level0_file_num_compaction_trigger.Name))
-	dbOptions.SetLevel0SlowdownWritesTrigger(c.GlobalInt(level0_slowdown_writes_trigger.Name))
-	dbOptions.SetLevel0StopWritesTrigger(c.GlobalInt(level0_stop_writes_trigger.Name))
-	dbOptions.SetMaxBytesForLevelBase(uint64(c.GlobalInt(max_bytes_for_level_base.Name)))
-	dbOptions.SetMaxBytesForLevelMultiplier(c.GlobalInt(max_bytes_for_level_multiplier.Name))
-	dbOptions.SetTargetFileSizeBase(uint64(c.GlobalInt(target_file_size_base.Name)))
-	dbOptions.SetTargetFileSizeMultiplier(c.GlobalInt(target_file_size_multiplier.Name))
-	dbOptions.SetSourceCompactionFactor(c.GlobalInt(source_compaction_factor.Name))
-	dbOptions.SetDisableAutoCompactions(c.GlobalBool(disable_auto_compactions.Name))
-
-	if c.GlobalBool(bulk.Name) {
-		dbOptions.PrepareForBulkLoad()
+	configOptions := map[string]interface{}{}
+	if configFile := c.GlobalString("config"); configFile != "" {
+		file, err := os.Open(configFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		dec := json.NewDecoder(file)
+		err = dec.Decode(&configOptions)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
+	DefaultOptions.Update(c)
+	val := reflect.ValueOf(&DefaultOptions).Elem()
+	for k, v := range configOptions {
+		switch a := v.(type) {
+		case float64:
+			val.FieldByName(k).SetInt(int64(a))
+		case string:
+			val.FieldByName(k).SetString(a)
+		case bool:
+			val.FieldByName(k).SetBool(a)
+		default:
+			fmt.Println(reflect.TypeOf(a))
+		}
+	}
+	DefaultOptions.SetOptions(dbOptions)
 }
 
 func setCompression(dbOptions *rdb.Options, compressionType string) {

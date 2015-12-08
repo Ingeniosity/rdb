@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/codegangsta/cli"
+	"github.com/unigraph/rdb"
 )
 
 func init() {
@@ -17,7 +18,8 @@ func init() {
 }
 
 func optionsBulk(c *cli.Context) {
-	DefaultOptions.Update(c)
+	dbOptions := rdb.NewDefaultOptions()
+	defaultFlags.setOptions(dbOptions, c)
 	out, err := json.MarshalIndent(DefaultOptions, "", "  ")
 	if err != nil {
 		log.Fatal(err)
