@@ -12,12 +12,7 @@ func init() {
 	app.Commands = append(app.Commands, cli.Command{
 		Name:   "compact",
 		Usage:  "compact rdb database",
-		Action: createDb,
-
-		Flags: []cli.Flag{
-			compression_type,
-			num_levels,
-		},
+		Action: compactDb,
 	})
 
 }
@@ -38,6 +33,7 @@ func compactDb(c *cli.Context) {
 		log.Fatal(err)
 	}
 	db.CompactRange(rdb.Range{})
-	fmt.Println("done")
+	db.Flush(rdb.NewDefaultFlushOptions())
 	fmt.Println([]byte(db.GetProperty("rocksdb.stats")))
+	fmt.Println("done")
 }
