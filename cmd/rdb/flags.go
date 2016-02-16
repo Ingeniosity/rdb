@@ -8,7 +8,7 @@ import (
 	"reflect"
 
 	"github.com/codegangsta/cli"
-	"github.com/ingeniosity/rdb"
+	"github.com/unigraph/rdb"
 )
 
 const (
