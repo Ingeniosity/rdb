@@ -12,16 +12,19 @@ type Slice struct {
 	freed bool
 }
 
+// NewSlice returns a slice with the given data.
 func NewSlice(data *C.char, size C.size_t) *Slice {
 	return &Slice{data, size, false}
 }
 
-func (self *Slice) Data() []byte {
-	return charToByte(self.data, self.size)
+// Data returns the data of the slice.
+func (s *Slice) Data() []byte {
+	return charToByte(s.data, s.size)
 }
 
-func (self *Slice) Size() int {
-	return int(self.size)
+// Size returns the size of the data.
+func (s *Slice) Size() int {
+	return int(s.size)
 }
 
 func (self *Slice) Free() {
