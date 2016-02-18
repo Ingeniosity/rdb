@@ -13,15 +13,10 @@ import (
 
 func init() {
 	app.Commands = append(app.Commands, cli.Command{
-		Name:   "random",
+		Name:   "generate",
 		Usage:  "generates random keys and values",
 		Action: randomData,
 		Flags: []cli.Flag{
-			cli.IntFlag{
-				Name:  "keysize,ks",
-				Value: 16,
-				Usage: "key size in bytes",
-			},
 			cli.IntFlag{
 				Name:  "valuesize,vs",
 				Value: 128,

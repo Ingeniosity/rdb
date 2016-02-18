@@ -34,6 +34,6 @@ func compactDb(c *cli.Context) {
 	}
 	db.CompactRange(rdb.Range{})
 	db.Flush(rdb.NewDefaultFlushOptions())
-	fmt.Println([]byte(db.GetProperty("rocksdb.stats")))
+	fmt.Println(db.GetProperty("rocksdb.stats"))
 	fmt.Println("done")
 }
