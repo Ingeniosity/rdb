@@ -80,6 +80,7 @@ func randomData(c *cli.Context) {
 	batchSize := c.Int("batchsize")
 
 	batch := rdb.NewWriteBatch()
+	log.Println("starting...")
 	for i := 0; i < iterations; i++ {
 		key := hashOf(fmt.Sprintf("%016d", i))
 		batch.Put(key, value)

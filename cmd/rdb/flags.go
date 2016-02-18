@@ -100,11 +100,6 @@ var (
 		Usage: "disables auto compactions",
 	}
 
-	disable_wal = cli.BoolFlag{
-		Name:  "disable_wal",
-		Usage: "disables wal (write ahead log)",
-	}
-
 	config = cli.StringFlag{
 		Name:  "config",
 		Usage: "rdb configuration file with options (alternative to command line parameters)",
@@ -126,8 +121,7 @@ var DefaultOptions = Options{
 	MaxBytesForLevelMultiplier:     10,
 	SourceCompactionFactor:         1,
 	DisableAutoCompactions:         false,
-	DisableWriteAheadLog:           false,
-	Bulk:                           false,
+	Bulk: false,
 }
 
 type Options struct {
@@ -145,7 +139,6 @@ type Options struct {
 	MaxBytesForLevelMultiplier     int
 	SourceCompactionFactor         int
 	DisableAutoCompactions         bool
-	DisableWriteAheadLog           bool
 	Bulk                           bool
 }
 
