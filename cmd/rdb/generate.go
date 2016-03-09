@@ -6,6 +6,7 @@ import (
 	"hash"
 	"log"
 	"sync"
+	"time"
 
 	"github.com/codegangsta/cli"
 	"github.com/unigraph/rdb"
@@ -35,6 +36,10 @@ func init() {
 			cli.BoolFlag{
 				Name:  "wal",
 				Usage: "disable/enable WAL (write ahead log)",
+			},
+			cli.BoolFlag{
+				Name:  "stats",
+				Usage: "disable/enable periodic stats dump",
 			},
 		},
 	})
@@ -81,6 +86,15 @@ func randomData(c *cli.Context) {
 
 	batch := rdb.NewWriteBatch()
 	log.Println("starting...")
+	fmt.Println(c.Bool("stats"))
+	if c.Bool("stats") {
+		go func() {
+			for {
+				time.Sleep(1 * time.Second)
+				fmt.Println(db.GetProperty("rocksdb.stats"))
+			}
+		}()
+	}
 	for i := 0; i < iterations; i++ {
 		key := hashOf(fmt.Sprintf("%016d", i))
 		batch.Put(key, value)
