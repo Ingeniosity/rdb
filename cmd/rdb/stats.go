@@ -25,10 +25,9 @@ func statsDb(c *cli.Context) {
 	}
 
 	dbOptions := rdb.NewDefaultOptions()
-	dbOptions.SetCreateIfMissing(true)
 	defaultFlags.setOptions(dbOptions, c)
 
-	db, err := rdb.OpenDb(dbOptions, dbName)
+	db, err := rdb.OpenDbForReadOnly(dbOptions, dbName, false)
 	if err != nil {
 		log.Fatal(err)
 	}
