@@ -86,7 +86,6 @@ func randomData(c *cli.Context) {
 
 	batch := rdb.NewWriteBatch()
 	log.Println("starting...")
-	fmt.Println(c.Bool("stats"))
 	if c.Bool("stats") {
 		go func() {
 			for {

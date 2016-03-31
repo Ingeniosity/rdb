@@ -8,6 +8,7 @@ import (
 	"reflect"
 
 	"github.com/codegangsta/cli"
+	"github.com/pivotal-golang/bytefmt"
 	"github.com/unigraph/rdb"
 )
 
@@ -16,6 +17,19 @@ const (
 	MB = kB * 1024
 	GB = MB * 1024
 )
+
+type bSize uint64
+
+func (b *bSize) Set(value string) (err error) {
+	val, err := bytefmt.ToBytes(value)
+	if err != nil {
+		return err
+	}
+	*b = bSize(val)
+	return
+}
+
+func (b *bSize) String() string { return bytefmt.ByteSize(uint64(*b)) }
 
 // https://github.com/facebook/rocksdb/blob/master/include/rocksdb/options.h
 var (
@@ -30,9 +44,9 @@ var (
 		Usage: "It is safe for num_levels to be bigger than expected number of levels in the database. Some higher levels may be empty, but this will not impact performance in any way. Only change this option if you expect your number of levels will be greater than 7",
 	}
 
-	write_buffer_size = cli.IntFlag{
+	write_buffer_size = cli.GenericFlag{
 		Name:  "write_buffer_size",
-		Value: DefaultOptions.WriteBufferSize,
+		Value: &DefaultOptions.WriteBufferSize,
 		Usage: "Size of a single memtable. Once memtable exceeds this size, it is marked immutable and a new one is created."}
 
 	max_write_buffer_number = cli.IntFlag{
@@ -63,9 +77,9 @@ var (
 		Value: DefaultOptions.Level0StopWritesTrigger,
 		Usage: "When the number is greater than stop limit, writes are fully stopped until compaction is done."}
 
-	target_file_size_base = cli.IntFlag{
+	target_file_size_base = cli.GenericFlag{
 		Name:  "target_file_size_base",
-		Value: DefaultOptions.TargetFileSizeBase,
+		Value: &DefaultOptions.TargetFileSizeBase,
 		Usage: "Files in level 1 will have target_file_size_base bytes. Each next level's file size will be target_file_size_multiplier bigger than previous one. However, by default target_file_size_multiplier is 1, so files in all L1..Lmax levels are equal. Increasing target_file_size_base will reduce total number of database files, which is generally a good thing. We recommend setting target_file_size_base to be max_bytes_for_level_base / 10, so that there are 10 files in level 1.",
 	}
 
@@ -75,9 +89,9 @@ var (
 		Usage: "Each next level's file size will be target_file_size_multiplier bigger than previous one. By default target_file_size_multiplier is 1, which means by default files in different levels will have similar size.",
 	}
 
-	max_bytes_for_level_base = cli.IntFlag{
+	max_bytes_for_level_base = cli.GenericFlag{
 		Name:  "max_bytes_for_level_base",
-		Value: DefaultOptions.MaxBytesForLevelBase,
+		Value: &DefaultOptions.MaxBytesForLevelBase,
 		Usage: "Total size of level 1. As mentioned, we recommend that this be around the size of level 0. ",
 	}
 
@@ -88,7 +102,7 @@ var (
 
 	bulk = cli.BoolFlag{
 		Name:  "bulk",
-		Usage: "Sets options for bulk data load. Modifies level0_file_num_compaction_trigger (1GB), level0_slowdown_writes_trigger(1GB), level0_stop_writes_trigger(1GB), target_file_size_base(256MB)"}
+		Usage: "Sets options for bulk data load. Modifies level0_file_num_compaction_trigger (1G), level0_slowdown_writes_trigger(1G), level0_stop_writes_trigger(1G)"}
 
 	source_compaction_factor = cli.IntFlag{
 		Name:  "source_compaction_factor",
@@ -107,17 +121,17 @@ var (
 )
 
 var DefaultOptions = Options{
-	CompressionType:                "snappy",
+	CompressionType:                "lz4",
 	NumLevels:                      7,
-	WriteBufferSize:                4 * MB,
-	MaxWriteBufferNumber:           2,
+	WriteBufferSize:                1 * GB,
+	MaxWriteBufferNumber:           8,
 	MinWriteBufferNumberToMerge:    2,
 	Level0FileNumCompactionTrigger: 4,
 	Level0SlowdownWritesTrigger:    20,
 	Level0StopWritesTrigger:        24,
-	TargetFileSizeBase:             2 * MB,
+	TargetFileSizeBase:             1 * GB,
 	TargetFileSizeMultiplier:       1,
-	MaxBytesForLevelBase:           10 * MB,
+	MaxBytesForLevelBase:           2 * GB,
 	MaxBytesForLevelMultiplier:     10,
 	SourceCompactionFactor:         1,
 	DisableAutoCompactions:         false,
@@ -127,15 +141,15 @@ var DefaultOptions = Options{
 type Options struct {
 	CompressionType                string
 	NumLevels                      int
-	WriteBufferSize                int
+	WriteBufferSize                bSize
 	MaxWriteBufferNumber           int
 	MinWriteBufferNumberToMerge    int
 	Level0FileNumCompactionTrigger int
 	Level0SlowdownWritesTrigger    int
 	Level0StopWritesTrigger        int
-	TargetFileSizeBase             int
+	TargetFileSizeBase             bSize
 	TargetFileSizeMultiplier       int
-	MaxBytesForLevelBase           int
+	MaxBytesForLevelBase           bSize
 	MaxBytesForLevelMultiplier     int
 	SourceCompactionFactor         int
 	DisableAutoCompactions         bool
@@ -166,15 +180,17 @@ var defaultFlags = flags{
 func (o *Options) Update(c *cli.Context) {
 	o.CompressionType = c.GlobalString(compression_type.Name)
 	o.NumLevels = c.GlobalInt(num_levels.Name)
-	o.WriteBufferSize = c.GlobalInt(write_buffer_size.Name)
 	o.MaxWriteBufferNumber = c.GlobalInt(max_write_buffer_number.Name)
 	o.MinWriteBufferNumberToMerge = c.GlobalInt(min_write_buffer_number_to_merge.Name)
 	o.Level0FileNumCompactionTrigger = (c.GlobalInt(level0_file_num_compaction_trigger.Name))
 	o.Level0SlowdownWritesTrigger = (c.GlobalInt(level0_slowdown_writes_trigger.Name))
 	o.Level0StopWritesTrigger = (c.GlobalInt(level0_stop_writes_trigger.Name))
-	o.MaxBytesForLevelBase = (c.GlobalInt(max_bytes_for_level_base.Name))
+
+	o.MaxBytesForLevelBase = *c.GlobalGeneric(max_bytes_for_level_base.Name).(*bSize)
+	o.WriteBufferSize = *c.GlobalGeneric(write_buffer_size.Name).(*bSize)
+	o.TargetFileSizeBase = *c.GlobalGeneric(target_file_size_base.Name).(*bSize)
+
 	o.MaxBytesForLevelMultiplier = (c.GlobalInt(max_bytes_for_level_multiplier.Name))
-	o.TargetFileSizeBase = (c.GlobalInt(target_file_size_base.Name))
 	o.TargetFileSizeMultiplier = (c.GlobalInt(target_file_size_multiplier.Name))
 	o.SourceCompactionFactor = (c.GlobalInt(source_compaction_factor.Name))
 	o.DisableAutoCompactions = (c.GlobalBool(disable_auto_compactions.Name))
@@ -189,7 +205,7 @@ func (o *Options) SetOptions(dbOptions *rdb.Options) {
 		dbOptions.PrepareForBulkLoad()
 	}
 	dbOptions.SetNumLevels(o.NumLevels)
-	dbOptions.SetWriteBufferSize(o.WriteBufferSize)
+	dbOptions.SetWriteBufferSize(int(o.WriteBufferSize))
 	dbOptions.SetMaxWriteBufferNumber(o.MaxWriteBufferNumber)
 	dbOptions.SetMinWriteBufferNumberToMerge(o.MinWriteBufferNumberToMerge)
 	//
@@ -224,14 +240,8 @@ func (f flags) setOptions(dbOptions *rdb.Options, c *cli.Context) {
 		configOptions["Level0FileNumCompactionTrigger"] = float64(1 * GB)
 		configOptions["Level0SlowdownWritesTrigger"] = float64(1 * GB)
 		configOptions["Level0StopWritesTrigger"] = float64(1 * GB)
-		configOptions["TargetFileSizeBase"] = float64(256 * MB)
 		configOptions["DisableAutoCompactions"] = true
-		configOptions["WriteBufferSize"] = float64(512 * MB)
-		configOptions["MinWriteBufferNumberToMerge"] = float64(8)
-		configOptions["MaxWriteBufferNumber"] = float64(16)
 		configOptions["SourceCompactionFactor"] = float64(1 * GB)
-		// DefaultOptions.CompressionType = "lz4"
-		// configOptions["CompressionType"] = "lz4"
 	}
 
 	DefaultOptions.Update(c)
