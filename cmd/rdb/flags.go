@@ -203,6 +203,23 @@ func (o *Options) SetOptions(dbOptions *rdb.Options) {
 	setCompression(dbOptions, o.CompressionType)
 	if o.Bulk {
 		dbOptions.PrepareForBulkLoad()
+		// this is what happens internaly for bulk load
+		// see https://github.com/facebook/rocksdb/blob/master/util/options.cc#L625
+		/*
+			dbOptions.SetLevel0FileNumCompactionTrigger(1 << 30)
+			dbOptions.SetLevel0SlowdownWritesTrigger(1 << 30)
+			dbOptions.SetLevel0StopWritesTrigger(1 << 30)
+			dbOptions.SetDisableAutoCompactions(true)
+			dbOptions.SetDisableDataSync(true)
+			dbOptions.SetSourceCompactionFactor(1 << 30)
+			dbOptions.SetNumLevels(2)
+			dbOptions.SetMaxWriteBufferNumber(6)
+			dbOptions.SetMinWriteBufferNumberToMerge(1)
+			dbOptions.SetMaxBackgroundFlushes(4)
+			dbOptions.SetMaxBackgroundCompactions(4)
+			dbOptions.SetTargetFileSizeBase(256 * 1024 * 1024)
+		*/
+
 	}
 	dbOptions.SetNumLevels(o.NumLevels)
 	dbOptions.SetWriteBufferSize(int(o.WriteBufferSize))
