@@ -8,6 +8,7 @@ import (
 	"reflect"
 
 	"github.com/codegangsta/cli"
+	"github.com/dustin/go-humanize"
 	"github.com/pivotal-golang/bytefmt"
 	"github.com/unigraph/rdb"
 )
@@ -21,7 +22,7 @@ const (
 type bSize uint64
 
 func (b *bSize) Set(value string) (err error) {
-	val, err := bytefmt.ToBytes(value)
+	val, err := humanize.ParseBytes(value)
 	if err != nil {
 		return err
 	}
