@@ -9,7 +9,6 @@ import (
 
 	"github.com/codegangsta/cli"
 	"github.com/dustin/go-humanize"
-	"github.com/pivotal-golang/bytefmt"
 	"github.com/unigraph/rdb"
 )
 
@@ -30,7 +29,7 @@ func (b *bSize) Set(value string) (err error) {
 	return
 }
 
-func (b *bSize) String() string { return bytefmt.ByteSize(uint64(*b)) }
+func (b *bSize) String() string { return humanize.IBytes(uint64(*b)) }
 
 // https://github.com/facebook/rocksdb/blob/master/include/rocksdb/options.h
 var (
