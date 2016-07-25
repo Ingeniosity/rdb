@@ -15,11 +15,11 @@ func init() {
 	})
 }
 
-func createDb(c *cli.Context) {
+func createDb(c *cli.Context) error {
 	dbName := c.GlobalString("db")
 	if dbName == "" {
 		cli.ShowAppHelp(c)
-		return
+		return nil
 	}
 	dbOptions := rdb.NewDefaultOptions()
 	dbOptions.SetCreateIfMissing(true)
@@ -30,4 +30,5 @@ func createDb(c *cli.Context) {
 		log.Fatal(err)
 	}
 	defer db.Close()
+	return nil
 }

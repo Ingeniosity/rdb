@@ -17,7 +17,7 @@ func init() {
 	})
 }
 
-func optionsBulk(c *cli.Context) {
+func optionsBulk(c *cli.Context) error {
 	dbOptions := rdb.NewDefaultOptions()
 	defaultFlags.setOptions(dbOptions, c)
 	out, err := json.MarshalIndent(DefaultOptions, "", "\t")
@@ -25,4 +25,5 @@ func optionsBulk(c *cli.Context) {
 		log.Fatal(err)
 	}
 	fmt.Println(string(out))
+	return nil
 }

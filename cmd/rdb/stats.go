@@ -17,11 +17,11 @@ func init() {
 
 }
 
-func statsDb(c *cli.Context) {
+func statsDb(c *cli.Context) error {
 	dbName := c.GlobalString("db")
 	if dbName == "" {
 		cli.ShowAppHelp(c)
-		return
+		return nil
 	}
 
 	dbOptions := rdb.NewDefaultOptions()
@@ -33,4 +33,5 @@ func statsDb(c *cli.Context) {
 	}
 	fmt.Println(db.GetProperty("rocksdb.stats"))
 	db.Close()
+	return nil
 }

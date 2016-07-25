@@ -60,11 +60,11 @@ func hashOf(s string) []byte {
 	return key
 }
 
-func randomData(c *cli.Context) {
+func randomData(c *cli.Context) error {
 	dbName := c.GlobalString("db")
 	if dbName == "" {
 		cli.ShowAppHelp(c)
-		return
+		return nil
 	}
 	dbOptions := rdb.NewDefaultOptions()
 	dbOptions.SetCreateIfMissing(true)
@@ -106,4 +106,5 @@ func randomData(c *cli.Context) {
 	db.Write(woptions, batch)
 	db.Flush(rdb.NewDefaultFlushOptions())
 	fmt.Println(db.GetProperty("rocksdb.stats"))
+	return nil
 }

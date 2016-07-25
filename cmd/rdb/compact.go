@@ -17,11 +17,11 @@ func init() {
 
 }
 
-func compactDb(c *cli.Context) {
+func compactDb(c *cli.Context) error {
 	dbName := c.GlobalString("db")
 	if dbName == "" {
 		cli.ShowAppHelp(c)
-		return
+		return nil
 	}
 
 	dbOptions := rdb.NewDefaultOptions()
@@ -36,4 +36,5 @@ func compactDb(c *cli.Context) {
 	db.Flush(rdb.NewDefaultFlushOptions())
 	fmt.Println(db.GetProperty("rocksdb.stats"))
 	fmt.Println("done")
+	return nil
 }
