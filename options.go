@@ -816,17 +816,6 @@ func (opts *Options) SetVerifyChecksumsInCompaction(value bool) {
 	C.rocksdb_options_set_verify_checksums_in_compaction(opts.c, boolToChar(value))
 }
 
-// SetFilterDeletes enable/disable filtering of deleted keys.
-//
-// Use KeyMayExist API to filter deletes when this is true.
-// If KeyMayExist returns false, i.e. the key definitely does not exist, then
-// the delete is a noop. KeyMayExist only incurs in-memory look up.
-// This optimization avoids writing the delete to storage when appropriate.
-// Default: false
-func (opts *Options) SetFilterDeletes(value bool) {
-	C.rocksdb_options_set_filter_deletes(opts.c, boolToChar(value))
-}
-
 // SetMaxSequentialSkipInIterations specifies whether an iteration->Next()
 // sequentially skips over keys with the same user-key or not.
 //
@@ -859,14 +848,8 @@ func (opts *Options) SetInplaceUpdateNumLocks(value int) {
 // If prefix_extractor is set and bloom_bits is not 0, create prefix bloom
 // for memtable.
 // Default: 0
-func (opts *Options) SetMemtablePrefixBloomBits(value uint32) {
-	C.rocksdb_options_set_memtable_prefix_bloom_bits(opts.c, C.uint32_t(value))
-}
-
-// SetMemtablePrefixBloomProbes sets the number of hash probes per key.
-// Default: 6
-func (opts *Options) SetMemtablePrefixBloomProbes(value uint32) {
-	C.rocksdb_options_set_memtable_prefix_bloom_probes(opts.c, C.uint32_t(value))
+func (opts *Options) SetMemtablePrefixBloomSizeRatio(value float64) {
+	C.rocksdb_options_set_memtable_prefix_bloom_size_ratio(opts.c, C.double(value))
 }
 
 // SetBloomLocality sets the bloom locality.
