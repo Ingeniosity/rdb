@@ -47,6 +47,9 @@ func (iter *Iterator) ValidForPrefix(prefix []byte) bool {
 	return C.rocksdb_iter_valid(iter.c) != 0 && bytes.HasPrefix(iter.Key().Data(), prefix)
 }
 
+// Consider changing as here
+// https://github.com/siddontang/ledisdb/blob/master/store/rocksdb/iterator.go#L20:L38
+//
 // Key returns the key the iterator currently holds.
 func (iter *Iterator) Key() *Slice {
 	var cLen C.size_t
