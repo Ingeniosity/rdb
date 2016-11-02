@@ -30,7 +30,7 @@ func TestComparator(t *testing.T) {
 	var actualKeys [][]byte
 	for iter.SeekToLast(); iter.Valid(); iter.Prev() {
 		key := make([]byte, 4)
-		copy(key, iter.Key().Data())
+		copy(key, iter.Key())
 		actualKeys = append(actualKeys, key)
 	}
 	ensure.Nil(t, iter.Err())
