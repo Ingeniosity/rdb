@@ -62,3 +62,21 @@ func XTestIteratorKeyMemoryLeak(t *testing.T) {
 		t.Errorf("Wrong len, expected 1<<20 got %v", len(valPointers))
 	}
 }
+
+func Benchmark_IteratorCreate(b *testing.B) {
+	b.StopTimer()
+	db := newBenchDB(b, "TestIteratorKeyMemoryLeak", nil)
+	defer db.Close()
+
+	wo := NewDefaultWriteOptions()
+	for i := 0; i < 1<<20; i++ {
+		ensure.Nil(b, db.Put(wo, []byte(fmt.Sprintf("key_%v", i)), []byte("some val")))
+	}
+	b.StartTimer()
+	ropts := NewDefaultReadOptions()
+	for i := 0; i < b.N; i++ {
+		iter := db.NewIterator(ropts)
+		iter.SeekToFirst()
+		iter.Close()
+	}
+}
