@@ -61,3 +61,18 @@ func newTestDB(t *testing.T, name string, applyOpts func(opts *Options)) *DB {
 
 	return db
 }
+
+func newBenchDB(b *testing.B, name string, applyOpts func(opts *Options)) *DB {
+	dir, err := ioutil.TempDir("", "gorocksdb-"+name)
+	ensure.Nil(b, err)
+
+	opts := NewDefaultOptions()
+	opts.SetCreateIfMissing(true)
+	if applyOpts != nil {
+		applyOpts(opts)
+	}
+	db, err := OpenDb(opts, dir)
+	ensure.Nil(b, err)
+
+	return db
+}
