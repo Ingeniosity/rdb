@@ -2,6 +2,7 @@ package rdb
 
 // #include "rocksdb/c.h"
 // #include "gorocksdb.h"
+// #include "ext.h"
 import "C"
 import "unsafe"
 
@@ -68,6 +69,10 @@ type Options struct {
 	cmo  *C.rocksdb_mergeoperator_t
 	cst  *C.rocksdb_slicetransform_t
 	ccf  *C.rocksdb_compactionfilter_t
+}
+
+type SwitchableMemtableFactory struct {
+	c *C.rocksdb_switchable_memtable_factory
 }
 
 // NewDefaultOptions creates the default Options.
@@ -986,4 +991,16 @@ func (opts *Options) Destroy() {
 	opts.c = nil
 	opts.env = nil
 	opts.bbto = nil
+}
+
+func (opts *Options) SetSwitchableMemtable() *SwitchableMemtableFactory {
+	return &SwitchableMemtableFactory{C.rocksdb_options_set_switchable_memtable_factory(opts.c)}
+}
+
+func (wf *SwitchableMemtableFactory) UseSkipList() {
+	C.useSkipList(wf.c)
+}
+
+func (wf *SwitchableMemtableFactory) UseVector() {
+	C.useVector(wf.c)
 }
