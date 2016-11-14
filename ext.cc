@@ -51,8 +51,10 @@ extern "C" {
 					const SliceTransform* c,
 					Logger* d) override {
 				if (this->isSkipList) {
+					std::cout << "creating skiplist" << std::endl;
 					return this->skipList->CreateMemTableRep(a,b,c,d);
 				} else { 
+					std::cout << "creating vector" << std::endl;
 					return this->vector->CreateMemTableRep(a,b,c,d);
 				}
 			}
