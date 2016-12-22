@@ -148,12 +148,12 @@ func checkValid(name string, shardsNum uint) error {
 		}
 		if len(shards) != 0 {
 			if uint(len(shards)) != shardsNum {
-				return fmt.Errorf("Wrong number of shards provided (%v)", len(shards))
+				return fmt.Errorf("Wrong number of shards provided (found %v)", len(shards))
 			}
 			for i := uint(0); i < shardsNum; i++ {
 				sName := ShardNameFn(i)
 				if !shards[sName] {
-					return fmt.Errorf("Wrong number of shards provided (%v)", len(shards))
+					return fmt.Errorf("Wrong number of shards provided (found %v)", len(shards))
 				}
 			}
 		}
