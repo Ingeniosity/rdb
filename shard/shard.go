@@ -129,9 +129,12 @@ func checkValid(name string, shardsNum uint) error {
 	if shardsNum == 0 || shardsNum > 999 {
 		return fmt.Errorf("Number of shards has to be bigger than 0 and lower than 1000")
 	}
-	if files, err := ioutil.ReadDir(name); os.IsNotExist(err) {
-		os.Mkdir(name, 0700)
-	} else {
+	files, err := ioutil.ReadDir(name)
+	if os.IsNotExist(err) { // does not exists, let's create empty
+		return os.Mkdir(name, 0700)
+	} else if err != nil { // some other error related to ReadDir
+		return err
+	} else { // exists, let's check the content
 		shards := map[string]bool{}
 		for _, file := range files {
 			if matched, _ := regexp.MatchString(`\d{3}`, file.Name()); matched {
