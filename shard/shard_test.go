@@ -24,6 +24,9 @@ func TestOpen(t *testing.T) {
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
+	if err := sh.Flush(rdb.NewDefaultFlushOptions()); err != nil {
+		t.Errorf("Should not get error: %v", err)
+	}
 	sh.Close()
 }
 
