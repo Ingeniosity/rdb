@@ -30,6 +30,14 @@ func TestOpen(t *testing.T) {
 	sh.Close()
 }
 
+func TestOpenWrongPath(t *testing.T) {
+	dbOpts := rdb.NewDefaultOptions()
+	dbOpts.SetCreateIfMissing(true)
+	if _, err := Open(dbOpts, "this#is&/some*wrong(path", 10); err == nil {
+		t.Errorf("Expecting error")
+	}
+}
+
 func TestCreateAndOpenWithWrongShardsNum(t *testing.T) {
 	dir := tmpLocation()
 	defer os.RemoveAll(dir)
