@@ -78,6 +78,9 @@ func (s *Shard) Flush(opts *rdb.FlushOptions) error {
 		}(db)
 	}
 	wg.Wait()
+	if len(err) == 0 {
+		return nil
+	}
 	return err
 }
 
