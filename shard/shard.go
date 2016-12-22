@@ -14,15 +14,14 @@ import (
 var ShardNameFn = func(i uint) string { return fmt.Sprintf("%03d", i) }
 
 type Shard struct {
-	dbs  []*rdb.DB
-	opts *rdb.Options
+	dbs []*rdb.DB
 }
 
 func Open(opts *rdb.Options, name string, shardsNum uint) (*Shard, error) {
 	if err := checkValid(name, shardsNum); err != nil {
 		return nil, err
 	}
-	s := &Shard{opts: opts}
+	s := &Shard{}
 	for i := uint(0); i < shardsNum; i++ {
 		sName := filepath.Join(name, ShardNameFn(i))
 		db, err := rdb.OpenDb(opts, sName)
@@ -39,7 +38,7 @@ func OpenForReadOnly(opts *rdb.Options, name string, shardsNum uint, errorIfLogF
 	if err := checkValid(name, shardsNum); err != nil {
 		return nil, err
 	}
-	s := &Shard{opts: opts}
+	s := &Shard{}
 	for i := uint(0); i < shardsNum; i++ {
 		sName := filepath.Join(name, ShardNameFn(i))
 		db, err := rdb.OpenDbForReadOnly(opts, sName, errorIfLogFileExist)
