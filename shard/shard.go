@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"regexp"
 	"sync"
 
 	"github.com/unigraph/rdb"
 )
+
+var ShardNameFn = func(i uint) string { return fmt.Sprintf("%03d", i) }
 
 type Shard struct {
 	dbs  []*rdb.DB
@@ -21,7 +24,7 @@ func Open(opts *rdb.Options, name string, shardsNum uint) (*Shard, error) {
 	}
 	s := &Shard{opts: opts}
 	for i := uint(0); i < shardsNum; i++ {
-		sName := fmt.Sprintf("%v/%03d", name, i)
+		sName := filepath.Join(name, ShardNameFn(i))
 		db, err := rdb.OpenDb(opts, sName)
 		if err != nil {
 			s.Close()
@@ -38,7 +41,7 @@ func OpenForReadOnly(opts *rdb.Options, name string, shardsNum uint, errorIfLogF
 	}
 	s := &Shard{opts: opts}
 	for i := uint(0); i < shardsNum; i++ {
-		sName := fmt.Sprintf("%v/%03d", name, i)
+		sName := filepath.Join(name, ShardNameFn(i))
 		db, err := rdb.OpenDbForReadOnly(opts, sName, errorIfLogFileExist)
 		if err != nil {
 			s.Close()
@@ -138,7 +141,7 @@ func checkValid(name string, shardsNum uint) error {
 				return fmt.Errorf("Wrong number of shards provided (%v)", len(shards))
 			}
 			for i := uint(0); i < shardsNum; i++ {
-				sName := fmt.Sprintf("%03d", i)
+				sName := ShardNameFn(i)
 				if !shards[sName] {
 					return fmt.Errorf("Wrong number of shards provided (%v)", len(shards))
 				}
