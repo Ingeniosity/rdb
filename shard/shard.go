@@ -117,11 +117,16 @@ func GetShardNum(name string) uint {
 	} else {
 		shards := map[string]bool{}
 		for _, file := range files {
-			if matched, _ := regexp.MatchString(`\d{3}`, file.Name()); matched {
-				shards[file.Name()] = true
-			}
+			shards[file.Name()] = true
 		}
-		return uint(len(shards))
+		i := 0
+		for shards[ShardNameFn(uint(i))] {
+			i++
+		}
+		if len(shards) != i {
+			return 0
+		}
+		return uint(i)
 	}
 }
 
