@@ -458,37 +458,6 @@ func (opts *Options) SetMaxBytesForLevelMultiplierAdditional(value []int) {
 	C.rocksdb_options_set_max_bytes_for_level_multiplier_additional(opts.c, &cLevels[0], C.size_t(len(value)))
 }
 
-// SetExpandedCompactionFactor sets the maximum number of bytes
-// in all compacted files.
-//
-// We avoid expanding the lower level file set of a compaction
-// if it would make the total compaction cover more than
-// (expanded_compaction_factor * targetFileSizeLevel()) many bytes.
-// Default: 25
-func (opts *Options) SetExpandedCompactionFactor(value int) {
-	C.rocksdb_options_set_expanded_compaction_factor(opts.c, C.int(value))
-}
-
-// SetSourceCompactionFactor sets the maximum number of bytes
-// in all source files to be compacted in a single compaction run.
-//
-// We avoid picking too many files in the
-// source level so that we do not exceed the total source bytes
-// for compaction to exceed
-// (source_compaction_factor * targetFileSizeLevel()) many bytes.
-// Default: 1
-func (opts *Options) SetSourceCompactionFactor(value int) {
-	C.rocksdb_options_set_source_compaction_factor(opts.c, C.int(value))
-}
-
-// SetMaxGrandparentOverlapFactor sets the maximum bytes
-// of overlaps in grandparent (i.e., level+2) before we
-// stop building a single file in a level->level+1 compaction.
-// Default: 10
-func (opts *Options) SetMaxGrandparentOverlapFactor(value int) {
-	C.rocksdb_options_set_max_grandparent_overlap_factor(opts.c, C.int(value))
-}
-
 // SetDisableDataSync enable/disable data sync.
 //
 // If true, then the contents of data files are not synced
@@ -821,17 +790,6 @@ func (opts *Options) SetVerifyChecksumsInCompaction(value bool) {
 	C.rocksdb_options_set_verify_checksums_in_compaction(opts.c, boolToChar(value))
 }
 
-// SetFilterDeletes enable/disable filtering of deleted keys.
-//
-// Use KeyMayExist API to filter deletes when this is true.
-// If KeyMayExist returns false, i.e. the key definitely does not exist, then
-// the delete is a noop. KeyMayExist only incurs in-memory look up.
-// This optimization avoids writing the delete to storage when appropriate.
-// Default: false
-func (opts *Options) SetFilterDeletes(value bool) {
-	C.rocksdb_options_set_filter_deletes(opts.c, boolToChar(value))
-}
-
 // SetMaxSequentialSkipInIterations specifies whether an iteration->Next()
 // sequentially skips over keys with the same user-key or not.
 //
@@ -864,14 +822,8 @@ func (opts *Options) SetInplaceUpdateNumLocks(value int) {
 // If prefix_extractor is set and bloom_bits is not 0, create prefix bloom
 // for memtable.
 // Default: 0
-func (opts *Options) SetMemtablePrefixBloomBits(value uint32) {
-	C.rocksdb_options_set_memtable_prefix_bloom_bits(opts.c, C.uint32_t(value))
-}
-
-// SetMemtablePrefixBloomProbes sets the number of hash probes per key.
-// Default: 6
-func (opts *Options) SetMemtablePrefixBloomProbes(value uint32) {
-	C.rocksdb_options_set_memtable_prefix_bloom_probes(opts.c, C.uint32_t(value))
+func (opts *Options) SetMemtablePrefixBloomSizeRatio(value float64) {
+	C.rocksdb_options_set_memtable_prefix_bloom_size_ratio(opts.c, C.double(value))
 }
 
 // SetBloomLocality sets the bloom locality.
