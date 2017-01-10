@@ -962,6 +962,11 @@ func (opts *Options) Destroy() {
 	opts.bbto = nil
 }
 
+// default: true  (as of 5.0.1)
+func (opts *Options) SetAllowConcurrentMemtableWrite(value bool) {
+	C.rocksdb_options_set_allow_concurrent_memtable_write(opts.c, boolToChar(value))
+}
+
 func (opts *Options) SetSwitchableMemtable() *SwitchableMemtableFactory {
 	return &SwitchableMemtableFactory{C.rocksdb_options_set_switchable_memtable_factory(opts.c)}
 }

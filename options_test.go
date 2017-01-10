@@ -12,11 +12,15 @@ import (
 )
 
 func Test_DynamicOptions(t *testing.T) {
+	if testing.Short() {
+		return
+	}
 	dir, err := ioutil.TempDir("", "gorocksdb-")
 	fmt.Println(dir)
 	ensure.Nil(t, err)
 
 	opts := opts()
+	opts.SetMemtableVectorRep()
 	f := opts.SetSwitchableMemtable()
 	db, err := OpenDb(opts, dir)
 	ensure.Nil(t, err)
@@ -60,6 +64,7 @@ func opts() *Options {
 	// global options
 	opt := NewDefaultOptions()
 	opt.SetCreateIfMissing(true)
+	opt.SetAllowConcurrentMemtableWrite(false)
 	opt.SetAllowMmapReads(true)
 	opt.SetMaxOpenFiles(-1)
 	opt.SetKeepLogFileNum(2)
