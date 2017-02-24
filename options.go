@@ -71,10 +71,6 @@ type Options struct {
 	ccf  *C.rocksdb_compactionfilter_t
 }
 
-type SwitchableMemtableFactory struct {
-	c *C.rocksdb_switchable_memtable_factory
-}
-
 // NewDefaultOptions creates the default Options.
 func NewDefaultOptions() *Options {
 	return NewNativeOptions(C.rocksdb_options_create())
@@ -965,16 +961,4 @@ func (opts *Options) Destroy() {
 // default: true  (as of 5.0.1)
 func (opts *Options) SetAllowConcurrentMemtableWrite(value bool) {
 	C.rocksdb_options_set_allow_concurrent_memtable_write(opts.c, boolToChar(value))
-}
-
-func (opts *Options) SetSwitchableMemtable() *SwitchableMemtableFactory {
-	return &SwitchableMemtableFactory{C.rocksdb_options_set_switchable_memtable_factory(opts.c)}
-}
-
-func (wf *SwitchableMemtableFactory) UseSkipList() {
-	C.useSkipList(wf.c)
-}
-
-func (wf *SwitchableMemtableFactory) UseVector() {
-	C.useVector(wf.c)
 }

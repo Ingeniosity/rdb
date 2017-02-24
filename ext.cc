@@ -21,7 +21,7 @@ extern "C" {
 		ReadOptions rep;
 		Slice upper_bound; // stack variable to set pointer to in ReadOptions
 	};
-	struct rocksdb_options_t         { Options           rep; };
+	// struct rocksdb_options_t         { Options           rep; };
 
 
 
@@ -34,51 +34,4 @@ extern "C" {
 		rocksdb::ColumnFamilyHandle* cf  = db->rep->DefaultColumnFamily();
 		return db->rep->KeyMayExist(options->rep, cf, Slice(key, keylen), &tmp, nullptr);
 	}
-
-	class SwitchableMemTableFactory: public MemTableRepFactory {
-		public:
-			char isSkipList;
-			MemTableRepFactory *vector, *skipList;
-		public:
-			explicit SwitchableMemTableFactory(): isSkipList(true) {
-				this->vector = new VectorRepFactory();
-				this->skipList = new SkipListFactory();
-			}
-
-			virtual MemTableRep* CreateMemTableRep(
-					const MemTableRep::KeyComparator& a,
-					MemTableAllocator* b,
-					const SliceTransform* c,
-					Logger* d) override {
-				if (this->isSkipList) {
-					return this->skipList->CreateMemTableRep(a,b,c,d);
-				} else { 
-					return this->vector->CreateMemTableRep(a,b,c,d);
-				}
-			}
-
-			virtual const char* Name() const override {
-				return "SwitchableMemTableFactory";
-			}
-	};
-
-	struct rocksdb_switchable_memtable_factory { SwitchableMemTableFactory* rep; };
-
-	rocksdb_switchable_memtable_factory* rocksdb_options_set_switchable_memtable_factory(rocksdb_options_t *opt) {
-		SwitchableMemTableFactory *factory = new SwitchableMemTableFactory();
-		opt->rep.memtable_factory.reset(factory);
-		rocksdb_switchable_memtable_factory* res = new rocksdb_switchable_memtable_factory;
-		res->rep = factory;
-		return res;
-	}
-
-	void useSkipList(rocksdb_switchable_memtable_factory *f) {
-		f->rep->isSkipList = 1;
-	}
-
-	void useVector(rocksdb_switchable_memtable_factory *f) {
-		f->rep->isSkipList = 0;
-	}
-
-
 }
