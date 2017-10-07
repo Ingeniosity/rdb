@@ -462,9 +462,9 @@ func (opts *Options) SetMaxBytesForLevelMultiplierAdditional(value []int) {
 // of data. Once the bulk-loading is complete, please issue a
 // sync to the OS to flush all dirty buffers to stable storage.
 // Default: false
-func (opts *Options) SetDisableDataSync(value bool) {
-	C.rocksdb_options_set_disable_data_sync(opts.c, C.int(btoi(value)))
-}
+// func (opts *Options) SetDisableDataSync(value bool) {
+// 	C.rocksdb_options_set_disable_data_sync(opts.c, C.int(btoi(value)))
+// }
 
 // SetUseFsync enable/disable fsync.
 //
@@ -683,9 +683,9 @@ func (opts *Options) SetPurgeRedundantKvsWhileFlush(value bool) {
 //
 // Data being read from file storage may be buffered in the OS
 // Default: true
-func (opts *Options) SetAllowOsBuffer(value bool) {
-	C.rocksdb_options_set_allow_os_buffer(opts.c, boolToChar(value))
-}
+// func (opts *Options) SetAllowOsBuffer(value bool) {
+// 	C.rocksdb_options_set_allow_os_buffer(opts.c, boolToChar(value))
+// }
 
 // SetAllowMmapReads enable/disable mmap reads for reading sst tables.
 // Default: false
@@ -782,9 +782,9 @@ func (opts *Options) SetFIFOCompactionOptions(value *FIFOCompactionOptions) {
 // If true, compaction will verify checksum on every read that happens
 // as part of compaction
 // Default: true
-func (opts *Options) SetVerifyChecksumsInCompaction(value bool) {
-	C.rocksdb_options_set_verify_checksums_in_compaction(opts.c, boolToChar(value))
-}
+// func (opts *Options) SetVerifyChecksumsInCompaction(value bool) {
+// 	C.rocksdb_options_set_verify_checksums_in_compaction(opts.c, boolToChar(value))
+// }
 
 // SetMaxSequentialSkipInIterations specifies whether an iteration->Next()
 // sequentially skips over keys with the same user-key or not.
@@ -857,9 +857,9 @@ func (opts *Options) SetMaxSuccessiveMerges(value int) {
 // is less than min_partial_merge_operands.
 // If min_partial_merge_operands < 2, then it will be treated as 2.
 // Default: 2
-func (opts *Options) SetMinPartialMergeOperands(value uint32) {
-	C.rocksdb_options_set_min_partial_merge_operands(opts.c, C.uint32_t(value))
-}
+// func (opts *Options) SetMinPartialMergeOperands(value uint32) {
+// 	C.rocksdb_options_set_min_partial_merge_operands(opts.c, C.uint32_t(value))
+// }
 
 // EnableStatistics enable statistics.
 func (opts *Options) EnableStatistics() {
